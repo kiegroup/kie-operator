@@ -5951,3 +5951,110 @@ func TestCRServerCPULimitAndRequestUsingMilicores(t *testing.T) {
 	assert.Equal(t, values.Requests.Cpu(), env.Servers[0].DeploymentConfigs[0].Spec.Template.Spec.Containers[0].Resources.Requests.Cpu())
 	assert.Equal(t, values.Limits.Cpu(), env.Servers[0].DeploymentConfigs[0].Spec.Template.Spec.Containers[0].Resources.Limits.Cpu())
 }
+
+func TestTrialEnvironmentWithoutCORS(t *testing.T) {
+	cr := &api.KieApp{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "test-without-cors",
+		},
+		Spec: api.KieAppSpec{
+			Environment: api.RhdmTrial,
+			Objects: api.KieAppObjects{
+				Servers: []api.KieServerSet{},
+			},
+		},
+	}
+
+	corsEnabled := isCORSEnabled(t, cr)
+	assert.False(t, corsEnabled)
+	assert.Empty(t, cr.Spec.Objects.Servers)
+	assert.Nil(t, cr.Status.Applied.Objects.Servers[0].Cors)
+}
+
+func TestTrialEnvironmentWithCORS(t *testing.T) {
+	cr := &api.KieApp{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "test-cors",
+		},
+		Spec: api.KieAppSpec{
+			Environment: api.RhpamTrial,
+			Objects: api.KieAppObjects{
+				Servers: []api.KieServerSet{
+					{
+						Cors: &api.CORSFiltersObject{
+							Filters:               "AC_ALLOW_ORIGIN,AC_ALLOW_METHODS,AC_ALLOW_HEADERS,AC_ALLOW_CREDENTIALS,AC_MAX_AGE",
+							AllowOriginName:       "Access-Control-Allow-Origin",
+							AllowOriginValue:      "*",
+							AllowMethodsName:      "Access-Control-Allow-Methods",
+							AllowMethodsValue:     "GET, POST, OPTIONS, PUT",
+							AllowHeadersName:      "Access-Control-Allow-Headers",
+							AllowHeadersValue:     "Accept, Authorization, Content-Type, X-Requested-With",
+							AllowCredentialsName:  "Access-Control-Allow-Credentials",
+							AllowCredentialsValue: Pbool(true),
+							MaxAgeName:            "Access-Control-Max-Age",
+							MaxAgeValue:           Pint32(1),
+						},
+					},
+				},
+			},
+		},
+	}
+	checkCORSAssertions(t, cr)
+}
+
+func checkCors(t *testing.T, cors *api.CORSFiltersObject) {
+	assert.Equal(t, cors.Filters, "AC_ALLOW_ORIGIN,AC_ALLOW_METHODS,AC_ALLOW_HEADERS,AC_ALLOW_CREDENTIALS,AC_MAX_AGE")
+	assert.Equal(t, cors.AllowOriginName, "Access-Control-Allow-Origin")
+	assert.Equal(t, cors.AllowOriginValue, "*")
+	assert.Equal(t, cors.AllowMethodsName, "Access-Control-Allow-Methods")
+	assert.Equal(t, cors.AllowMethodsValue, "GET, POST, OPTIONS, PUT")
+	assert.Equal(t, cors.AllowHeadersName, "Access-Control-Allow-Headers")
+	assert.Equal(t, cors.AllowHeadersValue, "Accept, Authorization, Content-Type, X-Requested-With")
+	assert.Equal(t, cors.AllowCredentialsName, "Access-Control-Allow-Credentials")
+	assert.True(t, *cors.AllowCredentialsValue)
+	assert.Equal(t, cors.MaxAgeName, "Access-Control-Max-Age")
+	assert.Equal(t, cors.MaxAgeValue, Pint32(1))
+}
+
+func TestTrialEnvironmentWithCORSDefault(t *testing.T) {
+	cr := &api.KieApp{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "test-cors-default",
+		},
+		Spec: api.KieAppSpec{
+			Environment: api.RhpamTrial,
+			Objects: api.KieAppObjects{
+				Servers: []api.KieServerSet{
+					{
+						Cors: &api.CORSFiltersObject{},
+					},
+				},
+			},
+		},
+	}
+
+	checkCORSAssertions(t, cr)
+}
+
+func checkCORSAssertions(t *testing.T, cr *api.KieApp) {
+	corsEnabled := isCORSEnabled(t, cr)
+	assert.True(t, corsEnabled)
+	assert.Len(t, cr.Spec.Objects.Servers, 1)
+	cors := cr.Status.Applied.Objects.Servers[0].Cors
+	assert.NotNil(t, cors)
+	checkCors(t, cors)
+}
+
+func isCORSEnabled(t *testing.T, cr *api.KieApp) bool {
+	env, err := GetEnvironment(cr, test.MockService())
+	assert.Nil(t, err, "Error getting CORS Test environment")
+	assert.NotNil(t, env)
+	envs := env.Servers[0].DeploymentConfigs[0].Spec.Template.Spec.Containers[0].Env
+	corsEnabled := false
+	for _, env := range envs {
+		if strings.HasPrefix(env.Name, "AC_ALLOW") || strings.HasPrefix(env.Name, "FILTERS") {
+			corsEnabled, _ = strconv.ParseBool(env.Value)
+		}
+	}
+	return corsEnabled
+}

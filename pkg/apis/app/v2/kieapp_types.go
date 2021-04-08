@@ -138,8 +138,9 @@ type KieServerSet struct {
 	Jms          *KieAppJmsObject `json:"jms,omitempty"`
 	Jvm          *JvmObject       `json:"jvm,omitempty"`
 	// JbpmCluster Enable the KIE Server Jbpm clustering for processes fail-over, it could increase the number of kieservers
-	JbpmCluster bool            `json:"jbpmCluster,omitempty"`
-	Kafka       *KafkaExtObject `json:"kafka,omitempty"`
+	JbpmCluster bool               `json:"jbpmCluster,omitempty"`
+	Kafka       *KafkaExtObject    `json:"kafka,omitempty"`
+	Cors        *CORSFiltersObject `json:"cors,omitempty"`
 }
 
 // ConsoleObject configuration of the RHPAM workbench
@@ -674,8 +675,9 @@ type ServerTemplate struct {
 	Jvm              JvmObject         `json:"jvm,omitempty"`
 	StorageClassName string            `json:"storageClassName,omitempty"`
 	// JbpmCluster Enable the KIE Server Jbpm clustering for processes fail-over, it could increase the number of kieservers
-	JbpmCluster bool            `json:"jbpmCluster,omitempty"`
-	Kafka       *KafkaExtObject `json:"kafka,omitempty"`
+	JbpmCluster bool               `json:"jbpmCluster,omitempty"`
+	Kafka       *KafkaExtObject    `json:"kafka,omitempty"`
+	Cors        *CORSFiltersObject `json:"cors,omitempty"`
 }
 
 // DashbuilderTemplate contains all the variables used in the yaml templates
@@ -975,6 +977,35 @@ type KafkaExtObject struct {
 	Acks *int `json:"acks,omitempty"`
 	// Number of milliseconds that indicates how long publish method will bloc
 	MaxBlockMs *int32 `json:"maxBlockMs,omitempty"`
+}
+
+type CORSFiltersObject struct {
+	//Access control Response Headers Filters separated by comma
+	Filters string `json:"filters,omitempty"`
+
+	//Access Control Origin Response Header Filter Header Name
+	AllowOriginName string `json:"allowOriginName,omitempty"`
+	//Access Control Origin Response Header  Filter Header Value
+	AllowOriginValue string `json:"allowOriginValue,omitempty"`
+
+	//Access Control Allow Methods Response Header Filter Header Name
+	AllowMethodsName string `json:"allowMethodsName,omitempty"`
+	//Access Control Allow Methods Response Headers Filter Header Value
+	AllowMethodsValue string `json:"allowMethodsValue,omitempty"`
+
+	//Access Control Allow Headers Filter Header Name
+	AllowHeadersName string `json:"allowHeadersName,omitempty"`
+	//Access Control Allow Headers Filter Header Value
+	AllowHeadersValue string `json:"allowHeadersValue,omitempty"`
+
+	//Access Control Allow Credentials Filter Header Name
+	AllowCredentialsName string `json:"allowCredentialsName,omitempty"`
+	//Access Control Allow Credentials Filter Header Value
+	AllowCredentialsValue *bool `json:"allowCredentialsValue,omitempty"`
+
+	//Access Control Max Age Filter Header Value
+	MaxAgeName  string `json:"maxAgeName,omitempty"`
+	MaxAgeValue *int32 `json:"maxAgeValue,omitempty"`
 }
 
 func init() {

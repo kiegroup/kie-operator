@@ -52,28 +52,30 @@ servers:
               containers:
                 - name: "[[.KieName]]"
                   env:
+                    #[[if .Cors]]
                     - name: FILTERS
-                      value: "AC_ALLOW_ORIGIN,AC_ALLOW_METHODS,AC_ALLOW_HEADERS,AC_ALLOW_CREDENTIALS,AC_MAX_AGE"
+                      value: "[[.Cors.Filters]]"
                     - name: AC_ALLOW_ORIGIN_FILTER_RESPONSE_HEADER_NAME
-                      value: "Access-Control-Allow-Origin"
+                      value: "[[.Cors.AllowOriginName]]"
                     - name: AC_ALLOW_ORIGIN_FILTER_RESPONSE_HEADER_VALUE
-                      value: "*"
+                      value: "[[.Cors.AllowOriginValue]]"
                     - name: AC_ALLOW_METHODS_FILTER_RESPONSE_HEADER_NAME
-                      value: "Access-Control-Allow-Methods"
+                      value: "[[.Cors.AllowMethodsName]]"
                     - name: AC_ALLOW_METHODS_FILTER_RESPONSE_HEADER_VALUE
-                      value: "GET, POST, OPTIONS, PUT"
+                      value: "[[.Cors.AllowMethodsValue]]"
                     - name: AC_ALLOW_HEADERS_FILTER_RESPONSE_HEADER_NAME
-                      value: "Access-Control-Allow-Headers"
+                      value: "[[.Cors.AllowHeadersName]]"
                     - name: AC_ALLOW_HEADERS_FILTER_RESPONSE_HEADER_VALUE
-                      value: "Accept, Authorization, Content-Type, X-Requested-With"
+                      value: "[[.Cors.AllowHeadersValue]]"
                     - name: AC_ALLOW_CREDENTIALS_FILTER_RESPONSE_HEADER_NAME
-                      value: "Access-Control-Allow-Credentials"
+                      value: "[[.Cors.AllowCredentialsName]]"
                     - name: AC_ALLOW_CREDENTIALS_FILTER_RESPONSE_HEADER_VALUE
-                      value: "true"
+                      value: "[[.Cors.AllowCredentialsValue]]"
                     - name: AC_MAX_AGE_FILTER_RESPONSE_HEADER_NAME
-                      value: "Access-Control-Max-Age"
+                      value: "[[.Cors.MaxAgeName]]"
                     - name: AC_MAX_AGE_FILTER_RESPONSE_HEADER_VALUE
-                      value: "1"
+                      value: "[[.Cors.MaxAgeValue]]"
+                    #[[end]]
                   resources:
                     limits:
                       memory: 1Gi
