@@ -33,6 +33,10 @@ type KieAppSpec struct {
 	Version      string            `json:"version,omitempty"`
 	CommonConfig CommonConfig      `json:"commonConfig,omitempty"`
 	Auth         *KieAppAuthObject `json:"auth,omitempty"`
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:Enum:=OpenShiftStartupStrategy;ControllerBasedStartupStrategy
+	// StartupStrategy, if no value is provided, OpenShiftStartupStrategy is the default value.
+	StartupStrategy string `json:"startupStrategy,omitempty"`
 }
 
 // EnvironmentType describes a possible application environment
@@ -678,6 +682,7 @@ type ServerTemplate struct {
 	JbpmCluster            bool                          `json:"jbpmCluster,omitempty"`
 	Kafka                  *KafkaExtObject               `json:"kafka,omitempty"`
 	KafkaJbpmEventEmitters *KafkaJBPMEventEmittersObject `json:"kafkaJbpmEventEmitters,omitempty"`
+	StartupStrategy        string                        `json:"startupStrategy,omitempty"`
 }
 
 // DashbuilderTemplate contains all the variables used in the yaml templates
@@ -998,6 +1003,12 @@ type KafkaJBPMEventEmittersObject struct {
 	// The topic name for cases event messages. Set up to override the default value jbpm-cases-events.
 	CasesTopicName string `json:"casesTopicName,omitempty"`
 }
+
+//StartupStrategies
+const (
+	OPENSHIFT_STARTUP_STRATEGY  = "OpenShiftStartupStrategy"
+	CONTROLLER_STARTUP_STRATEGY = "ControllerBasedStartupStrategy"
+)
 
 func init() {
 	SchemeBuilder.Register(&KieApp{}, &KieAppList{})

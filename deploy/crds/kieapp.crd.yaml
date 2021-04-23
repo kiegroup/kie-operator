@@ -2295,6 +2295,13 @@ spec:
                         type: boolean
                     type: object
                 type: object
+              startupStrategy:
+                description: StartupStrategy, if no value is provided, OpenShiftStartupStrategy
+                  is the default value.
+                enum:
+                - OpenShiftStartupStrategy
+                - ControllerBasedStartupStrategy
+                type: string
               truststore:
                 description: Defines which truststore is used by the console, kieservers,
                   smartrouter, and dashbuilder
@@ -4639,6 +4646,13 @@ spec:
                             type: boolean
                         type: object
                     type: object
+                  startupStrategy:
+                    description: StartupStrategy, if no value is provided, OpenShiftStartupStrategy
+                      is the default value.
+                    enum:
+                    - OpenShiftStartupStrategy
+                    - ControllerBasedStartupStrategy
+                    type: string
                   truststore:
                     description: Defines which truststore is used by the console,
                       kieservers, smartrouter, and dashbuilder

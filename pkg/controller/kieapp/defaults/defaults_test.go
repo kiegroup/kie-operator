@@ -6035,3 +6035,52 @@ func createKafkaJbpmObject(dateFormat string, tasksTopics string, casesTopics st
 	}
 	return &kafkaJBPMEventEmittersObject
 }
+
+func TestOpenshiftStartupStrategyConfiguration(t *testing.T) {
+	cr := &api.KieApp{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "test",
+		},
+		Spec: api.KieAppSpec{
+			StartupStrategy: api.OPENSHIFT_STARTUP_STRATEGY,
+			Environment:     api.RhdmProductionImmutable,
+			Objects: api.KieAppObjects{
+				Servers: []api.KieServerSet{},
+			},
+		},
+	}
+
+	env, err := GetEnvironment(cr, test.MockService())
+	assert.Nil(t, err, "Error getting prod environment")
+	assert.NotNil(t, env)
+	//@TODO
+	envs := env.Servers[0].DeploymentConfigs[0].Spec.Template.Spec.Containers[0].Env
+
+	consoleStartegyEnabled := false
+	for _, env := range envs {
+		if strings.HasPrefix(env.Value, "KIE_SERVER_STARTUP_STRATEGY") {
+			consoleStartegyEnabled = true
+		}
+	}
+	assert.True(t, consoleStartegyEnabled)
+}
+
+func TestControllerStartupStrategyConfiguration(t *testing.T) {
+	cr := &api.KieApp{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "test",
+		},
+		Spec: api.KieAppSpec{
+			StartupStrategy: api.CONTROLLER_STARTUP_STRATEGY,
+			Environment:     api.RhpamProductionImmutable,
+			Objects: api.KieAppObjects{
+				Servers: []api.KieServerSet{},
+			},
+		},
+	}
+
+	env, err := GetEnvironment(cr, test.MockService())
+	assert.Nil(t, err, "Error getting prod environment")
+	assert.NotNil(t, env)
+	//@TODO
+}
