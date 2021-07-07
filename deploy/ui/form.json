@@ -1812,6 +1812,25 @@
                       ]
                     }
                   ]
+                },
+                {
+                  "label": "Startup Strategy",
+                  "type": "dropDown",
+                  "required": true,
+                  "jsonPath": "$.spec.objects.servers[*].startupStrategy",
+                  "originalJsonPath": "$.spec.objects.servers[*].startupStrategy",
+                  "description": "Specify the StartupStrategy to use.",
+                  "default": "ControllerBasedStartupStrategy",
+                  "options": [
+                    {
+                      "value": "ControllerBasedStartupStrategy",
+                      "label": "ControllerBasedStartupStrategy"
+                    },
+                    {
+                      "value": "OpenShiftStartupStrategy",
+                      "label": "OpenShiftStartupStrategy"
+                    }
+                  ]
                 }
               ]
             }
