@@ -1007,7 +1007,7 @@ type KafkaJBPMEventEmittersObject struct {
 type StartupStrategy struct {
 	// StartupStrategy to use. Default is OpenShiftStartupStrategy, option is ControllerBasedStartupStrategy.
 	StrategyName string `json:"strategyName,omitempty"`
-	// Controller Template Cache TTL to use when the Openshift StartupStrategy is choosed and BC is deployed
+	// Controller Template Cache TTL to use when the Openshift StartupStrategy is choosed and BC is deployed, default is 5000
 	ControllerTemplateCacheTTL *int `json:"controllerTemplateCacheTTL,omitempty"`
 }
 
