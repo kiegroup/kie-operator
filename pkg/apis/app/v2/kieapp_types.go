@@ -33,10 +33,6 @@ type KieAppSpec struct {
 	Version      string            `json:"version,omitempty"`
 	CommonConfig CommonConfig      `json:"commonConfig,omitempty"`
 	Auth         *KieAppAuthObject `json:"auth,omitempty"`
-	// +kubebuilder:validation:Required
-	// +kubebuilder:validation:Enum:=OpenShiftStartupStrategy;ControllerBasedStartupStrategy
-	// StartupStrategy, if no value is provided, OpenShiftStartupStrategy is the default value.
-	StartupStrategy string `json:"startupStrategy,omitempty"`
 }
 
 // EnvironmentType describes a possible application environment
@@ -145,15 +141,17 @@ type KieServerSet struct {
 	JbpmCluster            bool                          `json:"jbpmCluster,omitempty"`
 	Kafka                  *KafkaExtObject               `json:"kafka,omitempty"`
 	KafkaJbpmEventEmitters *KafkaJBPMEventEmittersObject `json:"kafkaJbpmEventEmitters,omitempty"`
+	StartupStrategy        *StartupStrategy              `json:"startupStrategy,omitempty"`
 }
 
 // ConsoleObject configuration of the RHPAM workbench
 type ConsoleObject struct {
-	KieAppObject `json:",inline"`
-	SSOClient    *SSOAuthClient  `json:"ssoClient,omitempty"`
-	GitHooks     *GitHooksVolume `json:"gitHooks,omitempty"`
-	Jvm          *JvmObject      `json:"jvm,omitempty"`
-	PvSize       string          `json:"pvSize,omitempty"`
+	KieAppObject    `json:",inline"`
+	SSOClient       *SSOAuthClient   `json:"ssoClient,omitempty"`
+	GitHooks        *GitHooksVolume  `json:"gitHooks,omitempty"`
+	Jvm             *JvmObject       `json:"jvm,omitempty"`
+	PvSize          string           `json:"pvSize,omitempty"`
+	StartupStrategy *StartupStrategy `json:"startupStrategy,omitempty"`
 }
 
 // DashbuilderObject configuration of the RHPAM Dashbuilder
@@ -644,21 +642,22 @@ type TemplateConstants struct {
 
 // ConsoleTemplate contains all the variables used in the yaml templates
 type ConsoleTemplate struct {
-	OmitImageStream     bool           `json:"omitImageStream"`
-	SSOAuthClient       SSOAuthClient  `json:"ssoAuthClient,omitempty"`
-	Name                string         `json:"name,omitempty"`
-	Replicas            int32          `json:"replicas,omitempty"`
-	ImageContext        string         `json:"imageContext,omitempty"`
-	Image               string         `json:"image,omitempty"`
-	ImageTag            string         `json:"imageTag,omitempty"`
-	ImageURL            string         `json:"imageURL,omitempty"`
-	KeystoreSecret      string         `json:"keystoreSecret,omitempty"`
-	GitHooks            GitHooksVolume `json:"gitHooks,omitempty"`
-	Jvm                 JvmObject      `json:"jvm,omitempty"`
-	StorageClassName    string         `json:"storageClassName,omitempty"`
-	PvSize              string         `json:"pvSize,omitempty"`
-	Simplified          bool           `json:"simplifed"`
-	DashbuilderLocation string         `json:"dashbuilderLocation,omitempty"`
+	OmitImageStream     bool             `json:"omitImageStream"`
+	SSOAuthClient       SSOAuthClient    `json:"ssoAuthClient,omitempty"`
+	Name                string           `json:"name,omitempty"`
+	Replicas            int32            `json:"replicas,omitempty"`
+	ImageContext        string           `json:"imageContext,omitempty"`
+	Image               string           `json:"image,omitempty"`
+	ImageTag            string           `json:"imageTag,omitempty"`
+	ImageURL            string           `json:"imageURL,omitempty"`
+	KeystoreSecret      string           `json:"keystoreSecret,omitempty"`
+	GitHooks            GitHooksVolume   `json:"gitHooks,omitempty"`
+	Jvm                 JvmObject        `json:"jvm,omitempty"`
+	StorageClassName    string           `json:"storageClassName,omitempty"`
+	PvSize              string           `json:"pvSize,omitempty"`
+	Simplified          bool             `json:"simplifed"`
+	DashbuilderLocation string           `json:"dashbuilderLocation,omitempty"`
+	StartupStrategy     *StartupStrategy `json:"startupStrategy,omitempty"`
 }
 
 // ServerTemplate contains all the variables used in the yaml templates
@@ -682,7 +681,7 @@ type ServerTemplate struct {
 	JbpmCluster            bool                          `json:"jbpmCluster,omitempty"`
 	Kafka                  *KafkaExtObject               `json:"kafka,omitempty"`
 	KafkaJbpmEventEmitters *KafkaJBPMEventEmittersObject `json:"kafkaJbpmEventEmitters,omitempty"`
-	StartupStrategy        string                        `json:"startupStrategy,omitempty"`
+	StartupStrategy        *StartupStrategy              `json:"startupStrategy,omitempty"`
 }
 
 // DashbuilderTemplate contains all the variables used in the yaml templates
@@ -1004,10 +1003,18 @@ type KafkaJBPMEventEmittersObject struct {
 	CasesTopicName string `json:"casesTopicName,omitempty"`
 }
 
+// StartupStrategy
+type StartupStrategy struct {
+	// StartupStrategy to use. Default is OpenShiftStartupStrategy, option is ControllerBasedStartupStrategy.
+	StrategyName string `json:"strategyName,omitempty"`
+	// Controller Template Cache TTL to use when the Openshift StartupStrategy is choosed and BC is deployed
+	ControllerTemplateCacheTTL *int `json:"controllerTemplateCacheTTL,omitempty"`
+}
+
 //StartupStrategies
 const (
-	OPENSHIFT_STARTUP_STRATEGY  = "OpenShiftStartupStrategy"
-	CONTROLLER_STARTUP_STRATEGY = "ControllerBasedStartupStrategy"
+	OpenshiftStartupStrategy  = "OpenShiftStartupStrategy"
+	ControllerStartupStrategy = "ControllerBasedStartupStrategy"
 )
 
 func init() {
