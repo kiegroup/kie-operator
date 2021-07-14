@@ -6035,3 +6035,75 @@ func createKafkaJbpmObject(dateFormat string, tasksTopics string, casesTopics st
 	}
 	return &kafkaJBPMEventEmittersObject
 }
+
+func TestKieServerOpenshiftStartupStrategyConfiguration(t *testing.T) {
+	cr := &api.KieApp{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "test",
+		},
+		Spec: api.KieAppSpec{
+			Environment: api.RhpamProductionImmutable,
+			Objects: api.KieAppObjects{
+				Servers: []api.KieServerSet{
+					{
+						StartupStrategy: createStartupStrategy(api.OpenshiftStartupStrategy, 5000),
+					},
+				},
+			},
+		},
+	}
+
+	env, err := GetEnvironment(cr, test.MockService())
+	assert.Nil(t, err, "Error getting prod environment")
+	assert.NotNil(t, env)
+	envs := env.Servers[0].DeploymentConfigs[0].Spec.Template.Spec.Containers[0].Env
+
+	openshiftStrategyEnabled := false
+	for _, env := range envs {
+		if strings.HasPrefix(env.Name, "KIE_SERVER_STARTUP_STRATEGY") {
+			assert.Equal(t, env.Value, api.OpenshiftStartupStrategy)
+			openshiftStrategyEnabled = true
+		}
+	}
+	assert.True(t, openshiftStrategyEnabled)
+}
+
+func createStartupStrategy(strategyName string, ttl int) *api.StartupStrategy {
+	strategy := api.StartupStrategy{
+		StrategyName:               strategyName,
+		ControllerTemplateCacheTTL: Pint(ttl),
+	}
+	return &strategy
+}
+
+func TestKieServerControllerStartupStrategyConfiguration(t *testing.T) {
+	cr := &api.KieApp{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "test",
+		},
+		Spec: api.KieAppSpec{
+			Environment: api.RhpamProductionImmutable,
+			Objects: api.KieAppObjects{
+				Servers: []api.KieServerSet{
+					{
+						StartupStrategy: createStartupStrategy(api.ControllerStartupStrategy, 0),
+					},
+				},
+			},
+		},
+	}
+
+	env, err := GetEnvironment(cr, test.MockService())
+	assert.Nil(t, err, "Error getting prod environment")
+	assert.NotNil(t, env)
+	envs := env.Servers[0].DeploymentConfigs[0].Spec.Template.Spec.Containers[0].Env
+
+	controllerStrategyEnabled := false
+	for _, env := range envs {
+		if strings.HasPrefix(env.Name, "KIE_SERVER_STARTUP_STRATEGY") {
+			assert.Equal(t, env.Value, api.ControllerStartupStrategy)
+			controllerStrategyEnabled = true
+		}
+	}
+	assert.True(t, controllerStrategyEnabled)
+}
