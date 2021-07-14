@@ -447,7 +447,7 @@ func getConsoleTemplate(cr *api.KieApp) api.ConsoleTemplate {
 			template.Simplified = enabled
 		}
 
-		// if the Console strategy is passed
+		// Console StartupStrategy
 		if cr.Status.Applied.Objects.Console.StartupStrategy != nil {
 
 			// if enabled is OpenshiftStartupStrategy
